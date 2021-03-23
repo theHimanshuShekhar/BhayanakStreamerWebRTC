@@ -35,4 +35,5 @@ client.on("connect", () => {
 // Bind client socket to port
 client.bind(client_port);
 
-client.connect(5000, "127.0.0.1");
+const server = "127.0.0.1";
+client.connect(5000, server);
