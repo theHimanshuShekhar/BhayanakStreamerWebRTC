@@ -1,7 +1,7 @@
 const dgram = require("dgram");
 const server = dgram.createSocket("udp4");
 
-const server_port = process.env.SERVER_PORT || 5000;
+const server_port = process.env.PORT || 5000;
 
 // Log any error with connection
 server.on("error", (err) => {

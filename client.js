@@ -35,5 +35,5 @@ client.on("connect", () => {
 // Bind client socket to port
 client.bind(client_port);
 
-const server = "127.0.0.1";
+const server = "https://bhayanakstreamer.herokuapp.com/";
 client.connect(5000, server);
