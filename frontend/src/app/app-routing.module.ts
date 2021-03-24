@@ -3,12 +3,13 @@ import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './pages/home/home.component';
 import { LandingComponent } from './pages/landing/landing.component';
 import { RoomComponent } from './pages/room/room.component';
+import { AngularFireAuthGuard } from '@angular/fire/auth-guard';
 
 const routes: Routes = [
-  { path: '', component: LandingComponent},
-  {path: 'rooms', component: HomeComponent},
-  {path: 'room/:id', component: RoomComponent},
-  { path: '**', redirectTo: "/"  }
+  { path: 'login', component: LandingComponent},
+  { path: 'rooms', component: HomeComponent, canActivate: [AngularFireAuthGuard] },
+  { path: 'room/:id', component: RoomComponent, canActivate: [AngularFireAuthGuard] },
+  { path: '**', redirectTo: "/login"  }
 ];
 
 @NgModule({
