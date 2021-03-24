@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormGroup, FormControl, Validators } from '@angular/forms';
 
-import { AuthService } from 'src/app/services/auth/auth.service';
 import { RoomService } from 'src/app/services/room/room.service';
 
 @Component({
@@ -16,7 +15,6 @@ export class HomeComponent implements OnInit {
   createForm: FormGroup | any;
 
   constructor(
-    private authService: AuthService,
     private roomService: RoomService,
     private router: Router) {}
 
@@ -31,9 +29,6 @@ export class HomeComponent implements OnInit {
 
   get roomname() { return this.createForm.get('roomname'); }
 
-  logout() {
-    this.authService.logout();
-  }
 
   goToRoom(id: string) {
     this.router.navigate(["room", id])
