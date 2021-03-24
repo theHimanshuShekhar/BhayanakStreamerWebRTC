@@ -1,1 +1,16 @@
-<p>home works!</p>
+<div class="bg-gray-900 py-2">
+   <div class="container flex justify-between">
+        <div class="font-extrabold text-3xl text-center px-5 py-2 uppercase">Bhayanak</div>
+        <div class="bg-gray-700 rounded text-center shadow-md hover:bg-gray-600 cursor-pointer p-2" (click)="logout()">
+            <p class="font-bold text-2xl align-middle">Logout</p>
+        </div>
+   </div>
+ </div>
+ <div class="container py-9 grid grid-cols-5 gap-5">
+    <div *ngFor="let room of roomList" class="bg-gray-700 p-6 px-12 rounded-md flex flex-col justify-between">
+        <div class="text-2xl text-bold text-center py-4 break-words">{{room.name}}</div>
+        <div class="bg-gray-600 rounded text-center shadow-md hover:bg-gray-600 cursor-pointer p-2" (click)="goToRoom(room.id)">
+            <p class="font-bold text-2xl align-middle">Join</p>
+        </div>
+     </div>
+ </div>

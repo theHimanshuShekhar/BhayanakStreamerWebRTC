@@ -3,3 +3,8 @@
 @import "tailwindcss/utilities";
 
 /* You can add global styles to this file, and also import other style files */
+
+html,
+body {
+  @apply bg-gray-800;
+}
