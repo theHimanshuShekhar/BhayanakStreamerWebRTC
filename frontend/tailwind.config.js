@@ -1,8 +1,11 @@
 module.exports = {
   prefix: "",
-  purge: { enabled: true, content: ["./src/**/*.{html,ts}"] },
+  purge: { content: ["./src/**/*.{html}"] },
   darkMode: "media", // or 'media' or 'class'
   theme: {
+    container: {
+      center: true,
+    },
     extend: {},
   },
   variants: {
