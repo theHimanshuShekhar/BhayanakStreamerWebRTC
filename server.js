@@ -1,24 +1,12 @@
-const dgram = require("dgram");
-const server = dgram.createSocket("udp4");
+const app = require("express")();
+const http = require("http").Server(app);
+const io = require("socket.io")(http);
+const server_port = process.env.SERVER || 5000;
 
-const server_port = process.env.PORT || 5000;
-
-// Log any error with connection
-server.on("error", (err) => {
-  console.log(`server error:\n${err.stack}`);
-  server.close();
+io.on("connection", (socket) => {
+  console.log("a user connected");
 });
 
-// Message recieved on port
-server.on("message", (msg, rinfo) => {
-  console.log(`server got: ${msg} from ${rinfo.address}:${rinfo.port}`);
+http.listen(server_port, () => {
+  console.log("listening on *:" + server_port);
 });
-
-// Socket started listening
-server.on("listening", () => {
-  const address = server.address();
-  console.log(`server listening ${address.address}:${address.port}`);
-});
-
-// Bind server socket to port
-server.bind(server_port);
