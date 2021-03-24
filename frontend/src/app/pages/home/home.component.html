@@ -1,16 +1,41 @@
 <div class="bg-gray-900 py-2">
-   <div class="container flex justify-between">
-        <div class="font-extrabold text-3xl text-center px-5 py-2 uppercase">Bhayanak</div>
-        <div class="bg-gray-700 rounded text-center shadow-md hover:bg-gray-600 cursor-pointer p-2" (click)="logout()">
-            <p class="font-bold text-2xl align-middle">Logout</p>
+   <div class="flex justify-between px-4">
+        <div class="font-extrabold text-3xl text-center uppercase">Bhayanak</div>
+        <div class="bg-gray-700 rounded text-center font-semibold shadow-md hover:bg-gray-600 cursor-pointer px-4 flex items-center" (click)="logout()">
+            Logout
         </div>
    </div>
  </div>
- <div class="container py-9 grid grid-cols-5 gap-5">
-    <div *ngFor="let room of roomList" class="bg-gray-700 p-6 px-12 rounded-md flex flex-col justify-between">
-        <div class="text-2xl text-bold text-center py-4 break-words">{{room.name}}</div>
-        <div class="bg-gray-600 rounded text-center shadow-md hover:bg-gray-600 cursor-pointer p-2" (click)="goToRoom(room.id)">
-            <p class="font-bold text-2xl align-middle">Join</p>
+ <div class="container py-9 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-5">
+    <div class="bg-gray-700 col-span-2 md:col-span-1 text-center rounded-lg  flex flex-col justify-between pt-8 space-y-4">
+
+        <form [formGroup]="createForm" class="space-y-4 px-4">
+            <input formControlName="roomname" type="text" placeholder="Room name" class="text-gray-800 font-semibold rounded-lg p-2 px-3 w-full" />
+
+            <input formControlName="password" type="password" placeholder="Password" class="text-gray-800 rounded-lg p-2 px-3 w-full" />
+        </form>
+        <div class="bg-gray-600 px-4 py-4 rounded-lg flex-grow flex flex-col-reverse">
+
+            <button type="submit" [disabled]="!createForm.valid" class="w-full align-bottom bg-gray-700 rounded text-center shadow-md hover:bg-gray-800 hover:border cursor-pointer p-2" (click)="createRoom()">
+                <p class="font-bold text-2xl align-middle">Create</p>
+            </button>
+            <div *ngIf="roomname.invalid && (roomname.dirty || roomname.touched)" class="text-red-400 py-1">
+                <div *ngIf="roomname.errors.required">
+                    Room name is required.
+              </div>
+            </div>
+        </div>
+    </div>
+
+    <div *ngFor="let room of roomList" class="bg-gray-700 rounded-lg flex flex-col">
+        <div class="text-2xl font-semibold text-center break-words py-10 flex-grow">{{room.name}}</div>
+        <div class="px-4 bg-gray-600 pt-8 pb-4 flex flex-col justify-between rounded-lg ">
+            <div class="text-center">
+                User Icons
+            </div>
+            <div class="bg-gray-700 mt-4 rounded text-center shadow-md hover:bg-gray-800 hover:border cursor-pointer p-2" (click)="goToRoom(room.id)">
+                <p class="font-bold text-2xl align-middle">Join</p>
+            </div>
         </div>
      </div>
  </div>

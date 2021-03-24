@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
+import { FormGroup, FormControl, Validators } from '@angular/forms';
+
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { RoomService } from 'src/app/services/room/room.service';
-import { Router } from '@angular/router';
+
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -10,6 +13,8 @@ import { Router } from '@angular/router';
 export class HomeComponent implements OnInit {
   roomList: any;
 
+  createForm: FormGroup | any;
+
   constructor(
     private authService: AuthService,
     private roomService: RoomService,
@@ -17,7 +22,14 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.roomService.getRooms().subscribe(rooms => this.roomList = rooms)
+
+    this.createForm = new FormGroup({
+      roomname: new FormControl('', Validators.required),
+      password: new FormControl(''),
+    });
   }
+
+  get roomname() { return this.createForm.get('roomname'); }
 
   logout() {
     this.authService.logout();
@@ -25,6 +37,10 @@ export class HomeComponent implements OnInit {
 
   goToRoom(id: string) {
     this.router.navigate(["room", id])
+  }
+
+  createRoom() {
+    this.roomService.createRoom(this.createForm.value)
   }
 
 }
