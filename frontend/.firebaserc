@@ -1,0 +1,11 @@
+{
+  "targets": {
+    "bhayanak-streamer": {
+      "hosting": {
+        "frontend": [
+          "bhayanak-streamer"
+        ]
+      }
+    }
+  }
+}
