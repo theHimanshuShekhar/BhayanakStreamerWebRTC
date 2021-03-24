@@ -26,6 +26,5 @@ export class RoomService {
         owner: currentUser.uid,
       })
     })
-
   }
 }
