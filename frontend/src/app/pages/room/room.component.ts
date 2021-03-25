@@ -1,4 +1,3 @@
-import { viewClassName } from '@angular/compiler';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PresenceService } from 'src/app/services/room/presence.service';

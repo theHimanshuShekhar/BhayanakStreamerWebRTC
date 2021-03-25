@@ -3,12 +3,13 @@ import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './pages/home/home.component';
 import { LandingComponent } from './pages/landing/landing.component';
 import { RoomComponent } from './pages/room/room.component';
-import { AngularFireAuthGuard } from '@angular/fire/auth-guard';
+import { LoginAuthGaurd } from './services/routing/logingaurd.service';
+import { NonloginGaurd } from './services/routing/nonlogingaurd.service';
 
 const routes: Routes = [
-  { path: 'login', component: LandingComponent},
-  { path: 'rooms', component: HomeComponent, canActivate: [AngularFireAuthGuard] },
-  { path: 'room/:roomid', component: RoomComponent, canActivate: [AngularFireAuthGuard] },
+  { path: 'login', component: LandingComponent, canActivate: [LoginAuthGaurd]},
+  { path: 'rooms', component: HomeComponent, canActivate: [NonloginGaurd] },
+  { path: 'room/:roomid', component: RoomComponent, canActivate: [NonloginGaurd] },
   { path: '**', redirectTo: "/login"  }
 ];
 
