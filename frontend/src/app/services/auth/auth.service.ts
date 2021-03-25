@@ -13,6 +13,10 @@ export class AuthService {
     private afs: AngularFirestore,
     private router : Router) { }
 
+  getAuthState() {
+    return this.auth.authState
+  }
+
   getUser() {
     return this.auth.currentUser;
   }
