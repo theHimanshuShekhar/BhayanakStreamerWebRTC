@@ -10,12 +10,10 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 export class LandingComponent implements OnInit {
 
   constructor(public auth: AuthService, private router: Router) {
+    // this.checkUser()
   }
 
   ngOnInit(): void {
-    this.auth.getUser().then(user => {
-      if (user) this.router.navigate(["rooms"]);
-    })
   }
 
   login() {
