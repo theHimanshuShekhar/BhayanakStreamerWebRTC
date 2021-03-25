@@ -17,6 +17,10 @@ export class AuthService {
     return this.auth.currentUser;
   }
 
+  getUserWithUID(uid: string) {
+    return this.afs.collection('users').doc(uid).valueChanges()
+  }
+
   login() {
     this.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider())
     .then(() => this.updateUser())

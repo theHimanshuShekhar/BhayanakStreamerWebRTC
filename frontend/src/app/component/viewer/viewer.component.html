@@ -1,0 +1,6 @@
+<div *ngIf="user" class="bg-gray-700 p-5 flex flex-col text-center space-y-3 rounded-lg">
+    <img [src]="user.photoURL" [alt]="user.displayName" class="rounded-full max-h-150 max-w-150">
+    <div class="text-3xl">
+        {{user.displayName}}
+    </div>
+</div>

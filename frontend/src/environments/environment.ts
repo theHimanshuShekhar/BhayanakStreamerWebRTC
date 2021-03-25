@@ -12,7 +12,8 @@ export const environment = {
     storageBucket: "bhayanak-streamer.appspot.com",
     messagingSenderId: "870104437611",
     appId: "1:870104437611:web:8a4f42b850248274f0322e",
-    measurementId: "G-7B09948T96"
+    measurementId: "G-7B09948T96",
+    databaseURL: "https://bhayanak-streamer-default-rtdb.europe-west1.firebasedatabase.app",
   }
 };
 
