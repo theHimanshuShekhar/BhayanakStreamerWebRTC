@@ -1,7 +1,7 @@
 <div class="h-screen flex flex-col justify-between" *ngIf="roomData">
     <app-header></app-header>
-    <div class="flex-grow container py-2">
-       <div *ngIf="joinedusers" class="grid grid-cols-5 gap-5">
+    <div class="flex-grow p-3">
+       <div *ngIf="joinedusers" class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
             <div *ngFor="let user of joinedusers">
                 <app-viewer [uid]="user.uid"></app-viewer>
             </div>
