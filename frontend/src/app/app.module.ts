@@ -6,6 +6,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 
 import { AngularFireModule } from '@angular/fire';
 import { AngularFirestoreModule } from '@angular/fire/firestore';
+import { AngularFireAuthModule } from '@angular/fire/auth';
 
 import { environment } from '../environments/environment';
 
@@ -14,6 +15,7 @@ import { LandingComponent } from './pages/landing/landing.component';
 import { HomeComponent } from './pages/home/home.component';
 import { RoomComponent } from './pages/room/room.component';
 import { HeaderComponent } from './component/header/header.component';
+import { ViewerComponent } from './component/viewer/viewer.component';
 
 @NgModule({
   declarations: [
@@ -21,15 +23,17 @@ import { HeaderComponent } from './component/header/header.component';
     LandingComponent,
     HomeComponent,
     RoomComponent,
-    HeaderComponent
+    HeaderComponent,
+    ViewerComponent
   ],
   imports: [
-    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
     BrowserModule,
-    AppRoutingModule,
+    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
     AngularFireModule.initializeApp(environment.firebase),
+    AngularFireAuthModule,
     AngularFirestoreModule,
     ReactiveFormsModule,
+    AppRoutingModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
