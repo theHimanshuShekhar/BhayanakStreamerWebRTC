@@ -1,6 +1,17 @@
-<div *ngIf="user" class="bg-gray-700 h-full p-5 flex flex-col text-center space-y-3 rounded-lg items-center">
+<div *ngIf="user && !captureStream" class="bg-gray-700 h-full p-5 py-12 flex flex-col justify-center text-center space-y-3 rounded-lg items-center">
     <img [src]="user.photoURL" [alt]="user.displayName" class="block max-h-32 max-w-32 object-cover rounded-full">
     <div class="text-lg md:text-xl lg:text-2xl font-bold break-words">
         {{user.displayName}}
     </div>
+</div>
+
+<!-- Stream -->
+<div *ngIf="captureStream" class="relative border border-gray-800 rounded-lg">
+  <div class="z-10 absolute top-0 left-0 p-2 space-x-1 rounded-lg" *ngIf="user">
+    <div class="text-md font-bold break-words inline-block">
+        {{user.displayName}}
+    </div>
+    <img [src]="user.photoURL" [alt]="user.displayName" class="inline-block max-h-6 max-w-6 object-cover rounded-full">
+  </div>
+  <video #localVideo id="localVideo" [hidden]="captureStream && captureStream.active" autoplay playsinline controls class="w-full rounded-lg"></video>
 </div>

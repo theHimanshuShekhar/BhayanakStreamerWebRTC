@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { AfterViewChecked, Component, Input, OnInit, ViewChild } from '@angular/core';
 import { AuthService } from 'src/app/services/auth/auth.service';
 
 @Component({
@@ -6,8 +6,12 @@ import { AuthService } from 'src/app/services/auth/auth.service';
   templateUrl: './viewer.component.html',
   styleUrls: ['./viewer.component.scss']
 })
-export class ViewerComponent implements OnInit {
+export class ViewerComponent implements OnInit, AfterViewChecked {
   @Input() uid: string | undefined;
+  @Input() captureStream: any;
+
+
+  @ViewChild('localVideo', {static: false}) public localVideo:any;
 
   user: any;
 
@@ -19,6 +23,10 @@ export class ViewerComponent implements OnInit {
         this.user = user;
       })
     }
+  }
+
+  ngAfterViewChecked() {
+    if(this.localVideo && this.captureStream) this.localVideo.nativeElement.srcObject = this.captureStream;
   }
 
 }
