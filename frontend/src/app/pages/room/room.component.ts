@@ -55,9 +55,16 @@ export class RoomComponent implements OnInit{
   }
 
   async startCapture() {
+
+    const mediaOptions = {
+      video: true,
+      audio: {
+        echoCancellation: true,
+      }
+    }
     try {
       // @ts-ignore
-      this.captureStream = await window.navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+      this.captureStream = await window.navigator.mediaDevices.getDisplayMedia(mediaOptions);
       this.captureStream.addEventListener("inactive", this.stopCapture.bind(this))
     } catch(err) {
       console.error("Error: " + err);
