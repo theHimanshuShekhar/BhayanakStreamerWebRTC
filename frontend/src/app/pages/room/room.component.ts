@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { PresenceService } from 'src/app/services/room/presence.service';
@@ -12,10 +12,13 @@ import { first } from 'rxjs/operators';
 })
 export class RoomComponent implements OnInit{
 
+  @ViewChild('localVideo', {static: false}) public localVideo:any;
+
   roomData: any | undefined;
   joinedusers: any[] | undefined;
   captureStream!: any;
   currentUser!: any;
+
 
   constructor(
     private presence: PresenceService,
@@ -23,6 +26,7 @@ export class RoomComponent implements OnInit{
     private route: ActivatedRoute,
     private roomService: RoomService,
     private auth: AuthService) {}
+
 
   ngOnInit(): void {
     const roomid = this.route.snapshot.paramMap.get('roomid');
