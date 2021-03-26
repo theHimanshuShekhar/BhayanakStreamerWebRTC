@@ -7,11 +7,11 @@
 
 <!-- Stream -->
 <div *ngIf="captureStream" class="relative border border-gray-800 rounded-lg">
-  <div class="z-10 absolute top-0 left-0 p-2 space-x-1 rounded-lg" *ngIf="user">
+  <div class="z-10 absolute top-0 left-0 p-2 space-x-1 rounded-lg bg-gray-700 bg-opacity-50 m-1" *ngIf="user">
     <div class="text-md font-bold break-words inline-block">
         {{user.displayName}}
     </div>
     <img [src]="user.photoURL" [alt]="user.displayName" class="inline-block max-h-6 max-w-6 object-cover rounded-full">
   </div>
-  <video #localVideo id="localVideo" [hidden]="captureStream && captureStream.active" autoplay playsinline controls class="w-full rounded-lg"></video>
+  <video #localVideo id="localVideo" [hidden]="captureStream && captureStream.active" [muted]="isMuted" autoplay controls class="w-full rounded-lg"></video>
 </div>

@@ -9,6 +9,7 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 export class ViewerComponent implements OnInit, AfterViewChecked {
   @Input() uid: string | undefined;
   @Input() captureStream: any;
+  @Input() isMuted!: boolean;
 
 
   @ViewChild('localVideo', {static: false}) public localVideo:any;
