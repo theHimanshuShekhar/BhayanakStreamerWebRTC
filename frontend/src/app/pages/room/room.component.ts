@@ -45,6 +45,7 @@ export class RoomComponent implements OnInit{
 
   leaveRoom() {
     this.presence.leftRoom();
+    this.stopCapture();
     // Remove from firestore then route to rooms page
     this.router.navigate(['rooms']);
   }
