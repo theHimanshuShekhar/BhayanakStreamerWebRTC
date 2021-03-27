@@ -29,6 +29,10 @@ export class ConnectionService {
     // Create local peer connection
     const pc = new RTCPeerConnection(this.servers)
 
+    pc.onicecandidate = e => console.log(e);
+    pc.oniceconnectionstatechange = e => console.log(e);
+    pc.ontrack = (event) => console.log(event);
+
     pc.onicecandidate = event => {
       console.log("ICE candidate found")
       event.candidate && offerDoc.collection('offerCandidates').add(event.candidate.toJSON());
@@ -75,6 +79,10 @@ export class ConnectionService {
     const offerData = offer.payload.doc.data()
 
     const rc = new RTCPeerConnection(this.servers)
+
+    rc.onicecandidate = e => console.log("Got new ICE candidate " + e);
+    rc.oniceconnectionstatechange = e => console.log("Connection state changed " + e);
+
     rc.setRemoteDescription({sdp: offerData.sdp, type: offerData.type})
     const answerDescription = await rc.createAnswer()
     await rc.setLocalDescription(answerDescription)

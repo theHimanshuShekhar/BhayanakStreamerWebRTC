@@ -96,11 +96,7 @@ export class RoomComponent implements OnInit{
 
           this.captureStream.getTracks().forEach((track: MediaStreamTrack) => {
             conn.addTrack(track, this.captureStream)
-            conn.onicecandidate = e => console.log(e);
-            conn.oniceconnectionstatechange = e => console.log(e);
-            conn.ontrack = (event) => console.log(event);
           });
-
         }
       });
     });
