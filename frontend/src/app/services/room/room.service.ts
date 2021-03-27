@@ -26,7 +26,7 @@ export class RoomService {
       if (currentUser) {
         console.log('creating room')
         const pushkey = this.afs.createId();
-        this.afs.collection("rooms").doc().set({
+        this.afs.collection("rooms").doc(pushkey).set({
           roomid: pushkey,
           name: data.roomname,
           password: data.password || null,

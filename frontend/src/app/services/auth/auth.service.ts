@@ -36,7 +36,7 @@ export class AuthService {
   }
 
   updateUser() {
-    this.getUser().then(user => {
+    this.getAuthState().subscribe(user => {
       if(user) this.afs.collection("users").doc(user.uid).set({
         uid: user.uid,
         photoURL: user.photoURL,

@@ -4,6 +4,7 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 import { PresenceService } from 'src/app/services/room/presence.service';
 import { RoomService } from 'src/app/services/room/room.service';
 import { first } from 'rxjs/operators';
+import { ConnectionService } from 'src/app/services/connection/connection.service';
 
 @Component({
   selector: 'app-room',
@@ -19,13 +20,16 @@ export class RoomComponent implements OnInit{
   captureStream!: any;
   currentUser!: any;
 
+  connections: RTCPeerConnection[] = [];
+
 
   constructor(
     private presence: PresenceService,
     private router: Router,
     private route: ActivatedRoute,
     private roomService: RoomService,
-    private auth: AuthService) {}
+    private auth: AuthService,
+    private connection: ConnectionService) {}
 
 
   ngOnInit(): void {
@@ -57,16 +61,19 @@ export class RoomComponent implements OnInit{
 
   async startCapture() {
 
-    const mediaOptions = {
+    const mediaOptions: MediaStreamConstraints = {
       video: true,
       audio: {
-        echoCancellation: true,
+        echoCancellation: false,
+        autoGainControl: false,
+        noiseSuppression: false,
       }
     }
     try {
       // @ts-ignore
       this.captureStream = await window.navigator.mediaDevices.getDisplayMedia(mediaOptions);
       this.captureStream.addEventListener("inactive", this.stopCapture.bind(this));
+      this.listenForOffers()
       this.presence.startedStreaming(this.currentUser.uid)
     } catch(err) {
       console.error("Error: " + err);
@@ -78,6 +85,24 @@ export class RoomComponent implements OnInit{
     this.captureStream = null;
 
     this.presence.stoppedStreaming(this.currentUser.uid)
+  }
+
+  listenForOffers() {
+    this.connection.listenForConnections(this.currentUser.uid, this.roomData.roomid)
+    .subscribe(offerDocuments => {
+      offerDocuments.forEach(async (offer: any) => {
+        if (offer) {
+          const conn = await this.connection.answerConnections(offer.payload.doc.data().from, this.currentUser.uid, this.roomData.roomid, offer)
+
+          this.captureStream.getTracks().forEach((track: MediaStreamTrack) => {
+            conn.addTrack(track, this.captureStream)
+          });
+
+          this.connections.push(conn)
+          console.log(this.connections)
+        }
+      });
+    });
   }
 
 }
