@@ -3,6 +3,9 @@
     <div class="text-lg md:text-xl lg:text-2xl font-bold break-words">
         {{user.displayName}}
     </div>
+    <div *ngIf="isStreaming" class="bg-gray-600 rounded text-center font-semibold text-lg shadow-md hover:bg-gray-600 cursor-pointer px-5 py-3 flex items-center">
+      Join Stream
+  </div>
 </div>
 
 <!-- Stream -->

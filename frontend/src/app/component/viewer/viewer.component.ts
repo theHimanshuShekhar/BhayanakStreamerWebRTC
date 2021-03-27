@@ -10,6 +10,7 @@ export class ViewerComponent implements OnInit, AfterViewChecked {
   @Input() uid: string | undefined;
   @Input() captureStream: any;
   @Input() isMuted!: boolean;
+  @Input() isStreaming!: boolean;
 
 
   @ViewChild('localVideo', {static: false}) public localVideo:any;
@@ -28,6 +29,10 @@ export class ViewerComponent implements OnInit, AfterViewChecked {
 
   ngAfterViewChecked() {
     if(this.localVideo && this.captureStream) this.localVideo.nativeElement.srcObject = this.captureStream;
+  }
+
+  joinStream() {
+
   }
 
 }
