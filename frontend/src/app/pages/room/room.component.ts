@@ -66,7 +66,8 @@ export class RoomComponent implements OnInit{
     try {
       // @ts-ignore
       this.captureStream = await window.navigator.mediaDevices.getDisplayMedia(mediaOptions);
-      this.captureStream.addEventListener("inactive", this.stopCapture.bind(this))
+      this.captureStream.addEventListener("inactive", this.stopCapture.bind(this));
+      this.presence.startedStreaming(this.currentUser.uid)
     } catch(err) {
       console.error("Error: " + err);
     }
@@ -75,6 +76,8 @@ export class RoomComponent implements OnInit{
   stopCapture() {
     if(this.captureStream) this.captureStream.getTracks().forEach((track: any) => track.stop());
     this.captureStream = null;
+
+    this.presence.stoppedStreaming(this.currentUser.uid)
   }
 
 }

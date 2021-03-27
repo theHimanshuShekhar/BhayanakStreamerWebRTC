@@ -37,6 +37,7 @@ export class PresenceService {
         uid: uid,
         state: 'joined',
         roomid: roomid,
+        streaming: false,
         last_changed: firebase.database.ServerValue.TIMESTAMP,
     };
 
@@ -64,6 +65,24 @@ export class PresenceService {
               userStatusDatabaseRef.set(isOnlineForDatabase);
             });
         });
+  }
+
+  startedStreaming(uid: string) {
+    console.log('Started streaming');
+    var userStatusDatabaseRef = firebase.database().ref('/status/' + uid);
+    userStatusDatabaseRef.update({
+      streaming: true,
+      last_changed: firebase.database.ServerValue.TIMESTAMP,
+    })
+  }
+
+  stoppedStreaming(uid: string) {
+    console.log('Stopped streaming');
+    var userStatusDatabaseRef = firebase.database().ref('/status/' + uid);
+    userStatusDatabaseRef.update({
+      streaming: false,
+      last_changed: firebase.database.ServerValue.TIMESTAMP,
+    })
   }
 
   leftRoom() {
