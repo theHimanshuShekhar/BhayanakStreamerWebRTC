@@ -40,20 +40,10 @@ export class ViewerComponent implements OnInit, AfterViewChecked {
       this.connection.offerConnection(this.uid, this.currentUID, this.roomID).then(pc => {
         console.log(pc);
         // Pull tracks from remote stream, add to video stream
-        pc.ontrack = this.getOnTrackCallback()
+        pc.onicecandidate = e => console.log(e);
+        pc.oniceconnectionstatechange = e => console.log(e);
+        pc.ontrack = (event) => console.log(event);
       });
     }
   }
-
-  private getOnTrackCallback()  {
-    console.log("onTrack Callback called")
-    return (event: RTCTrackEvent) => {
-      console.log("Add track to captureStream")
-      event.streams[0].getTracks().forEach((track: any) => {
-        this.captureStream.addTrack(track);
-        console.log("Added track to captureStream")
-      });
-    };
-  }
-
 }
