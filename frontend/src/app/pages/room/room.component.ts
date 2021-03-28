@@ -62,8 +62,8 @@ export class RoomComponent implements OnInit, OnDestroy{
   }
 
   ngOnDestroy() {
-    // this.roomObs.unsubscribe()
-    // this.usersObs.unsubscribe()
+    this.roomObs.unsubscribe()
+    this.usersObs.unsubscribe()
   }
 
   populateUsers(newusers: any[]) {
