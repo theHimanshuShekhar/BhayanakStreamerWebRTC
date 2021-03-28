@@ -19,8 +19,8 @@ export class RoomComponent implements OnInit, OnDestroy{
 
   iceServers: RTCConfiguration = {
     "iceServers":[
-      {"urls":["turn:192.158.29.39:3478?transport=tcp"],"username":"28224511:1379330808","credential":"JZEOEt2V3Qb0y27GRntt2u2PAYA"},
-      {"urls":["turn:192.158.29.39:3478?transport=udp"],"username":"28224511:1379330808","credential":"JZEOEt2V3Qb0y27GRntt2u2PAYA"},
+      {"urls":["turn:192.158.29.39:3478?transport=tcp"],"username":"28224511:1379330808","credential":"JZEOEt2V3Qb0y27GRntt2u2PAYA="},
+      {"urls":["turn:192.158.29.39:3478?transport=udp"],"username":"28224511:1379330808","credential":"JZEOEt2V3Qb0y27GRntt2u2PAYA="},
       {"urls":["turn:numb.viagenie.ca"],"username":"gotismurf@gmail.com","credential":"golusing95"},
       {"urls":["stun:stun1.l.google.com:19302"],"username":"","credential":""},
       {"urls":["stun:stun2.l.google.com:19302"],"username":"","credential":""},
