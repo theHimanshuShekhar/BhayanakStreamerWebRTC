@@ -4,7 +4,6 @@ import { AuthService } from 'src/app/services/auth/auth.service';
 import { PresenceService } from 'src/app/services/room/presence.service';
 import { RoomService } from 'src/app/services/room/room.service';
 import { first } from 'rxjs/operators';
-import { ConnectionService } from 'src/app/services/connection/connection.service';
 import { AngularFirestore } from '@angular/fire/firestore';
 
 @Component({
@@ -42,8 +41,7 @@ export class RoomComponent implements OnInit{
     private route: ActivatedRoute,
     private roomService: RoomService,
     private auth: AuthService,
-    private afs: AngularFirestore,
-    private connection: ConnectionService) {}
+    private afs: AngularFirestore) {}
 
 
   ngOnInit(): void {
@@ -64,8 +62,19 @@ export class RoomComponent implements OnInit{
   leaveRoom() {
     this.presence.leftRoom();
     this.stopCapture();
+    this.clearConnectionOffers();
     // Remove from firestore then route to rooms page
     this.router.navigate(['rooms']);
+  }
+
+  clearConnectionOffers() {
+    this.afs.collection("rooms/" + this.roomData.roomid + "/offers", ref=>ref.where("from","==",this.currentUser.uid))
+    .snapshotChanges()
+    .subscribe(docs => docs.forEach(snapshots => snapshots.payload.doc.ref.delete()))
+
+    this.afs.collection("rooms/" + this.roomData.roomid + "/offers", ref=>ref.where("to","==",this.currentUser.uid))
+    .snapshotChanges()
+    .subscribe(docs => docs.forEach(snapshots => snapshots.payload.doc.ref.delete()))
   }
 
   buttonClick() {
@@ -143,15 +152,13 @@ export class RoomComponent implements OnInit{
             // Set recieved remote description to peer connection
             await pc.setRemoteDescription(doc);
           }
-
         });
 
         // Listen for ice candidates froms viewer and add to peer connection
         offerDoc.collection('answerCandidates').valueChanges()
           .subscribe(candidates => candidates.forEach(candidate => pc.addIceCandidate(new RTCIceCandidate(candidate))));
-
       })
-    )
+    );
   }
 
 }

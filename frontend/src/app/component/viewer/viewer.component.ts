@@ -27,8 +27,6 @@ export class ViewerComponent implements OnInit, AfterViewChecked {
       "iceCandidatePoolSize":10
     };
 
-
-
   user: any;
 
   constructor(private auth: AuthService, private afs: AngularFirestore) {
