@@ -5,6 +5,7 @@ import { PresenceService } from 'src/app/services/room/presence.service';
 import { RoomService } from 'src/app/services/room/room.service';
 import { first } from 'rxjs/operators';
 import { ConnectionService } from 'src/app/services/connection/connection.service';
+import { AngularFirestore } from '@angular/fire/firestore';
 
 @Component({
   selector: 'app-room',
@@ -14,6 +15,18 @@ import { ConnectionService } from 'src/app/services/connection/connection.servic
 export class RoomComponent implements OnInit{
 
   @ViewChild('localVideo', {static: false}) public localVideo:any;
+
+
+  iceServers: RTCConfiguration = {
+    "iceServers":[
+      {"urls":["stun:stun1.l.google.com:19302"],"username":"","credential":""},
+      {"urls":["stun:stun2.l.google.com:19302"],"username":"","credential":""},
+      {"urls":["stun:stun3.l.google.com:19302"],"username":"","credential":""},
+      {"urls":["stun:stun4.l.google.com:19302"],"username":"","credential":""}],
+      "iceTransportPolicy":"all",
+      "iceCandidatePoolSize":10
+    };
+
 
   roomData: any | undefined;
   joinedusers: any[] | undefined;
@@ -29,6 +42,7 @@ export class RoomComponent implements OnInit{
     private route: ActivatedRoute,
     private roomService: RoomService,
     private auth: AuthService,
+    private afs: AngularFirestore,
     private connection: ConnectionService) {}
 
 
@@ -73,7 +87,7 @@ export class RoomComponent implements OnInit{
       // @ts-ignore
       this.captureStream = await window.navigator.mediaDevices.getDisplayMedia(mediaOptions);
       this.captureStream.addEventListener("inactive", this.stopCapture.bind(this));
-      this.listenForOffers()
+      this.listenForRequests()
       this.presence.startedStreaming(this.currentUser.uid)
     } catch(err) {
       console.error("Error: " + err);
@@ -87,19 +101,57 @@ export class RoomComponent implements OnInit{
     this.presence.stoppedStreaming(this.currentUser.uid)
   }
 
-  listenForOffers() {
-    this.connection.listenForConnections(this.currentUser.uid, this.roomData.roomid)
-    .subscribe(offerDocuments => {
-      offerDocuments.forEach(async (offer: any) => {
-        if (offer && offer.payload.doc.data().type === "offer")
-          this.connection.answerConnections(offer.payload.doc.data().from, this.currentUser.uid, this.roomData.roomid, offer)
-          .then(conn => {
-            this.captureStream.getTracks().forEach((track: MediaStreamTrack) => {
-              conn.addTrack(track, this.captureStream)
-            });
-          })
-      });
-    });
+  listenForRequests() {
+    this.afs.collection("rooms/" + this.roomData.roomid + "/offers", ref => ref.where("to","==",this.currentUser.uid).where("type","==","view"))
+    .snapshotChanges()
+    .subscribe(snapshots =>
+      snapshots.forEach(async request => {
+
+        const offerDoc = this.afs.doc(request.payload.doc.ref.path)
+
+        // Create peer connection and add the captured stream tracks to the connection
+        const pc = new RTCPeerConnection(this.iceServers)
+        this.captureStream.getTracks().forEach((track: MediaStreamTrack) => pc.addTrack(track, this.captureStream))
+
+        // Attach listeners to the peer connection
+        pc.onicecandidate = e => {
+          console.log("ICE candidate found")
+          e.candidate && offerDoc.collection('offerCandidates').add(e.candidate.toJSON());
+        };
+
+        pc.onicegatheringstatechange = e => console.log(e);
+        pc.onsignalingstatechange = e => console.log(e);
+        pc.oniceconnectionstatechange = e => console.log(e);
+        pc.onconnectionstatechange = e => console.log(e);
+        pc.onnegotiationneeded = e => console.log(e);
+
+        // Create offer from streamer
+        const offerDescription = await pc.createOffer()
+        await pc.setLocalDescription(offerDescription)
+
+        const offer = {
+          sdp: pc.localDescription?.sdp,
+          type: pc.localDescription?.type
+        }
+
+        offerDoc.set(offer)
+
+        // Listen for answer sdp from viewer
+        offerDoc.valueChanges()
+        .subscribe(async (doc:any) => {
+          if(doc && doc.type === "answer") {
+            // Set recieved remote description to peer connection
+            await pc.setRemoteDescription(doc);
+          }
+
+        });
+
+        // Listen for ice candidates froms viewer and add to peer connection
+        offerDoc.collection('answerCandidates').valueChanges()
+          .subscribe(candidates => candidates.forEach(candidate => pc.addIceCandidate(new RTCIceCandidate(candidate))));
+
+      })
+    )
   }
 
 }

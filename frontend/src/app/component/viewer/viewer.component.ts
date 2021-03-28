@@ -1,6 +1,6 @@
 import { AfterViewChecked, Component, Input, OnInit, ViewChild } from '@angular/core';
+import { AngularFirestore } from '@angular/fire/firestore';
 import { AuthService } from 'src/app/services/auth/auth.service';
-import { ConnectionService } from 'src/app/services/connection/connection.service';
 
 @Component({
   selector: 'app-viewer',
@@ -8,19 +8,31 @@ import { ConnectionService } from 'src/app/services/connection/connection.servic
   styleUrls: ['./viewer.component.scss']
 })
 export class ViewerComponent implements OnInit, AfterViewChecked {
+  @ViewChild('localVideo', {static: false}) public localVideo:any;
+
   @Input() uid!: string ;
-  @Input() captureStream: any;
+  @Input() captureStream!: MediaStream;
   @Input() isMuted!: boolean;
   @Input() isStreaming?: boolean;
   @Input() currentUID?: string ;
   @Input() roomID?: string;
 
+  iceServers: RTCConfiguration = {
+    "iceServers":[
+      {"urls":["stun:stun1.l.google.com:19302"],"username":"","credential":""},
+      {"urls":["stun:stun2.l.google.com:19302"],"username":"","credential":""},
+      {"urls":["stun:stun3.l.google.com:19302"],"username":"","credential":""},
+      {"urls":["stun:stun4.l.google.com:19302"],"username":"","credential":""}],
+      "iceTransportPolicy":"all",
+      "iceCandidatePoolSize":10
+    };
 
-  @ViewChild('localVideo', {static: false}) public localVideo:any;
+
 
   user: any;
 
-  constructor(private auth: AuthService, private connection: ConnectionService) { }
+  constructor(private auth: AuthService, private afs: AngularFirestore) {
+  }
 
   ngOnInit(): void {
     if(this.uid) {
@@ -34,12 +46,62 @@ export class ViewerComponent implements OnInit, AfterViewChecked {
     if(this.localVideo && this.captureStream) this.localVideo.nativeElement.srcObject = this.captureStream;
   }
 
-  joinStream() {
-    // Establish connection with user using UID
+  async joinStream() {
     if(this.currentUID && this.roomID) {
-      this.connection.offerConnection(this.uid, this.currentUID, this.roomID).then(pc => {
-        console.log(pc);
-      });
+
+      // Add request to establish connection with streamer
+      const offerDoc = this.afs.collection("rooms/" + this.roomID + "/offers").doc()
+      const offerpayload = {
+        from: this.currentUID,
+        to: this.uid,
+        type: 'view'
+      }
+      await offerDoc.set(offerpayload)
+
+      const pc = new RTCPeerConnection(this.iceServers)
+
+      // Attach listeners to the peer connection
+      pc.ontrack = event => {
+        this.captureStream = new MediaStream();
+        // Get video and audio tracks from peer connection and add to media stream
+        event.streams[0].getTracks().forEach(track => {
+            this.captureStream.addTrack(track);
+        });
+
+        // // Add mediastream as src of video element
+        // if(this.captureStream) this.localVideo.nativeElement.srcObject = this.captureStream
+      };
+
+      pc.onicecandidate = e => {
+        console.log("ICE candidate found")
+        e.candidate && offerDoc.collection('answerCandidates').add(e.candidate.toJSON());
+      };
+
+      // Listen for offer from streamer
+      offerDoc.valueChanges()
+      .subscribe(async (offer:any) => {
+        if(offer && offer.type === "offer") {
+          // Set recieved remote description to peer connection
+          await pc.setRemoteDescription(offer)
+          const answerDescription = await pc.createAnswer();
+          await pc.setLocalDescription(answerDescription)
+
+          const answerpayload = {
+            sdp: pc.localDescription?.sdp,
+            type: pc.localDescription?.type,
+          }
+
+          console.log(answerpayload)
+          // Send local description to database for streamer
+          await offerDoc.set(answerpayload)
+          console.log('after')
+
+          // Listen for ice candidates from streamer and add to peer connection
+          offerDoc.collection('offerCandidates').valueChanges()
+          .subscribe(candidates => candidates.forEach(candidate => pc.addIceCandidate(new RTCIceCandidate(candidate))));
+        }
+      })
+
     }
   }
 }
