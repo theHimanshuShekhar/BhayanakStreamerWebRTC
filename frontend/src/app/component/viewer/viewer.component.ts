@@ -39,10 +39,6 @@ export class ViewerComponent implements OnInit, AfterViewChecked {
     if(this.currentUID && this.roomID) {
       this.connection.offerConnection(this.uid, this.currentUID, this.roomID).then(pc => {
         console.log(pc);
-        // Pull tracks from remote stream, add to video stream
-        pc.onicecandidate = e => console.log(e);
-        pc.oniceconnectionstatechange = e => console.log(e);
-        pc.ontrack = (event) => console.log(event);
       });
     }
   }

@@ -91,13 +91,13 @@ export class RoomComponent implements OnInit{
     this.connection.listenForConnections(this.currentUser.uid, this.roomData.roomid)
     .subscribe(offerDocuments => {
       offerDocuments.forEach(async (offer: any) => {
-        if (offer) {
-          const conn = await this.connection.answerConnections(offer.payload.doc.data().from, this.currentUser.uid, this.roomData.roomid, offer)
-
-          this.captureStream.getTracks().forEach((track: MediaStreamTrack) => {
-            conn.addTrack(track, this.captureStream)
-          });
-        }
+        if (offer && offer.payload.doc.data().type === "offer")
+          this.connection.answerConnections(offer.payload.doc.data().from, this.currentUser.uid, this.roomData.roomid, offer)
+          .then(conn => {
+            this.captureStream.getTracks().forEach((track: MediaStreamTrack) => {
+              conn.addTrack(track, this.captureStream)
+            });
+          })
       });
     });
   }

@@ -6,19 +6,15 @@ import { AngularFirestore } from '@angular/fire/firestore';
 })
 export class ConnectionService {
 
-  servers = {
-    iceServers: [
-      {
-        urls: [
-          'stun:stun.l.google.com:19302',
-          'stun:stun2.l.google.com:19302',
-          'stun:stun3.l.google.com:19302',
-          'stun:stun4.l.google.com:19302',
-        ],
-      },
-    ],
-    iceCandidatePoolSize: 10,
-  };
+  iceServers: RTCConfiguration = {
+    "iceServers":[
+      {"urls":["stun:stun1.l.google.com:19302"],"username":"","credential":""},
+      {"urls":["stun:stun2.l.google.com:19302"],"username":"","credential":""},
+      {"urls":["stun:stun3.l.google.com:19302"],"username":"","credential":""},
+      {"urls":["stun:stun4.l.google.com:19302"],"username":"","credential":""}],
+      "iceTransportPolicy":"all",
+      "iceCandidatePoolSize":10
+    };
 
   constructor(private afs: AngularFirestore) { }
 
@@ -27,41 +23,45 @@ export class ConnectionService {
     const offerDoc = this.afs.collection("rooms/" + roomID + "/offers").doc()
 
     // Create local peer connection
-    const pc = new RTCPeerConnection(this.servers)
+    const pc = new RTCPeerConnection(this.iceServers)
 
-    pc.onicecandidate = e => console.log(e);
-    pc.oniceconnectionstatechange = e => console.log(e);
-    pc.ontrack = (event) => console.log(event);
-
-    pc.onicecandidate = event => {
+    pc.onicecandidate = e => {
       console.log("ICE candidate found")
-      event.candidate && offerDoc.collection('offerCandidates').add(event.candidate.toJSON());
+      e.candidate && offerDoc.collection('offerCandidates').add(e.candidate.toJSON());
     };
 
-    // Create offer payload for database
-    const offerDescription = await pc.createOffer();
+    pc.onicegatheringstatechange = e => console.log(e);
+    pc.onsignalingstatechange = e => console.log(e);
+    pc.onicecandidateerror = e => console.log(e);
+    pc.oniceconnectionstatechange = e => console.log(e);
+    pc.onconnectionstatechange = e => console.log(e);
+    pc.onnegotiationneeded = e => console.log(e);
+
+    const offerDescription = await pc.createOffer()
     await pc.setLocalDescription(offerDescription)
 
+    console.log("adding offer to db")
+
     const offer = {
-      sdp: offerDescription.sdp,
-      type: offerDescription.type,
+      sdp: pc.localDescription?.sdp,
+      type: pc.localDescription?.type,
       from: currentUID,
       to: remoteUID,
     }
-    // Send offer to remote user through firestore
-    offerDoc.set(offer);
 
+    // Send offer to remote user through firestore
+    await offerDoc.set(offer);
 
     // Check for answer in database
-    offerDoc.valueChanges().subscribe((doc:any)=> {
+    offerDoc.valueChanges().subscribe(async (doc:any)=> {
       if (doc && !pc.currentRemoteDescription && doc.type === "answer") {
-        pc.setRemoteDescription({sdp: doc.sdp, type: doc.type})
-        .then(() => {
-          // Delete the document
-          offerDoc.delete()
-        })
+        await pc.setRemoteDescription({sdp: doc.sdp, type: doc.type})
+        await offerDoc.delete()
       }
-    })
+    });
+
+
+    console.log(pc)
 
     return pc;
   }
@@ -78,22 +78,32 @@ export class ConnectionService {
 
     const offerData = offer.payload.doc.data()
 
-    const rc = new RTCPeerConnection(this.servers)
+    const rc = new RTCPeerConnection(this.iceServers)
 
-    rc.onicecandidate = e => console.log("Got new ICE candidate " + e);
-    rc.oniceconnectionstatechange = e => console.log("Connection state changed " + e);
+    rc.onicecandidate = event => {
+      console.log("ICE candidate found")
+      event.candidate && offerDoc.collection('answerCandidates').add(event.candidate.toJSON());
+    };
 
-    rc.setRemoteDescription({sdp: offerData.sdp, type: offerData.type})
+    rc.onicegatheringstatechange = e => console.log(e);
+    rc.onsignalingstatechange = e => console.log(e);
+    rc.onicecandidateerror = e => console.log(e);
+    rc.oniceconnectionstatechange = e => console.log(e);
+    rc.onconnectionstatechange = e => console.log(e);
+    rc.onnegotiationneeded = e => console.log(e);
+
+    await rc.setRemoteDescription({sdp: offerData.sdp, type: offerData.type})
     const answerDescription = await rc.createAnswer()
     await rc.setLocalDescription(answerDescription)
-
     const answer = {
-      sdp: answerDescription.sdp,
-      type: answerDescription.type,
+      sdp: rc.localDescription?.sdp,
+      type: rc.localDescription?.type,
       from: currentUID,
       to: remoteUID,
     }
-    offerDoc.set(answer)
+    await offerDoc.set(answer)
+
+    console.log(rc)
 
     return rc;
   }
