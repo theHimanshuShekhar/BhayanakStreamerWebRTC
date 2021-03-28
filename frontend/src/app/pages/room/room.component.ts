@@ -1,17 +1,18 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { PresenceService } from 'src/app/services/room/presence.service';
 import { RoomService } from 'src/app/services/room/room.service';
 import { first } from 'rxjs/operators';
 import { AngularFirestore } from '@angular/fire/firestore';
+import { Observable, Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-room',
   templateUrl: './room.component.html',
   styleUrls: ['./room.component.scss']
 })
-export class RoomComponent implements OnInit{
+export class RoomComponent implements OnInit, OnDestroy{
 
   @ViewChild('localVideo', {static: false}) public localVideo:any;
 
@@ -26,6 +27,9 @@ export class RoomComponent implements OnInit{
       "iceCandidatePoolSize":10
     };
 
+  roomObs!: Subscription;
+  usersObs!: Subscription;
+
 
   roomData: any | undefined;
   joinedusers: any[] | undefined;
@@ -33,7 +37,6 @@ export class RoomComponent implements OnInit{
   currentUser!: any;
 
   connections: RTCPeerConnection[] = [];
-
 
   constructor(
     private presence: PresenceService,
@@ -48,10 +51,36 @@ export class RoomComponent implements OnInit{
     const roomid = this.route.snapshot.paramMap.get('roomid');
     if (roomid) {
       this.presence.joinedRoom(roomid);
-      this.roomService.getRoomByID(roomid).subscribe(room => this.roomData = room);
-      this.roomService.getRoomUsers(roomid).subscribe(users => this.joinedusers = users);
+      this.joinedusers = [];
+      this.roomObs = this.roomService.getRoomByID(roomid).subscribe((room: any) => this.roomData = room);
+      this.usersObs = this.roomService.getRoomUsers(roomid).subscribe((users: any[]) => this.populateUsers(users))
       this.getCurrentUser();
     }
+  }
+
+  ngOnDestroy() {
+    this.roomObs.unsubscribe()
+    this.usersObs.unsubscribe()
+  }
+
+  populateUsers(newusers: any[]) {
+    this.joinedusers = newusers;
+
+    // console.log('joined:')
+    // console.log(this.joinedusers)
+    // console.log('new:')
+    // console.log(newusers)
+
+    // if(this.joinedusers && this.joinedusers.length <= 0) { this.joinedusers = newusers; return;}
+
+    // // Add newusers not present in joinedusers
+
+    // // Remove joinedusers not present in newusers
+
+    // // Update streaming status of joinedusers
+
+    // console.log('after:')
+    // console.log(this.joinedusers)
   }
 
   async getCurrentUser() {

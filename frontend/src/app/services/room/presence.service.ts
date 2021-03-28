@@ -30,7 +30,7 @@ export class PresenceService {
     // or online.
     var isOfflineForDatabase = {
         state: 'offline',
-        last_changed: firebase.database.ServerValue.TIMESTAMP,
+        // last_changed: firebase.database.ServerValue.TIMESTAMP,
     };
 
     var isOnlineForDatabase = {
@@ -38,7 +38,7 @@ export class PresenceService {
         state: 'joined',
         roomid: roomid,
         streaming: false,
-        last_changed: firebase.database.ServerValue.TIMESTAMP,
+        // last_changed: firebase.database.ServerValue.TIMESTAMP,
     };
 
     // Create a reference to the special '.info/connected' path in
@@ -72,7 +72,7 @@ export class PresenceService {
     var userStatusDatabaseRef = firebase.database().ref('/status/' + uid);
     userStatusDatabaseRef.update({
       streaming: true,
-      last_changed: firebase.database.ServerValue.TIMESTAMP,
+      // last_changed: firebase.database.ServerValue.TIMESTAMP,
     })
   }
 
@@ -81,7 +81,7 @@ export class PresenceService {
     var userStatusDatabaseRef = firebase.database().ref('/status/' + uid);
     userStatusDatabaseRef.update({
       streaming: false,
-      last_changed: firebase.database.ServerValue.TIMESTAMP,
+      // last_changed: firebase.database.ServerValue.TIMESTAMP,
     })
   }
 
@@ -93,7 +93,7 @@ export class PresenceService {
         var userStatusDatabaseRef = firebase.database().ref('/status/' + currentUser.uid);
         var isOfflineForDatabase = {
           state: 'offline',
-          last_changed: firebase.database.ServerValue.TIMESTAMP,
+          // last_changed: firebase.database.ServerValue.TIMESTAMP,
         };
         userStatusDatabaseRef.set(isOfflineForDatabase)
       }

@@ -17,7 +17,7 @@ export class RoomService {
     return this.afs.collection("rooms").valueChanges({idField: "id"});
   }
 
-  getRoomByID(id:string) {
+  getRoomByID(id:string):any {
     return this.afs.collection<AngularFirestoreCollection>("rooms").doc(id).valueChanges();
   }
 
