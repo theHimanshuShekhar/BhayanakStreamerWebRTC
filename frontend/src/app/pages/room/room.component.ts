@@ -19,6 +19,7 @@ export class RoomComponent implements OnInit, OnDestroy{
 
   iceServers: RTCConfiguration = {
     "iceServers":[
+      {"urls":["turn:65.1.37.89:3478"],"username":"<USERNAME>","credential":"<PASSWORD>"},
       {"urls":["turn:192.158.29.39:3478?transport=tcp"],"username":"28224511:1379330808","credential":"JZEOEt2V3Qb0y27GRntt2u2PAYA="},
       {"urls":["turn:192.158.29.39:3478?transport=udp"],"username":"28224511:1379330808","credential":"JZEOEt2V3Qb0y27GRntt2u2PAYA="},
       {"urls":["turn:numb.viagenie.ca"],"username":"gotismurf@gmail.com","credential":"golusing95"},
@@ -34,8 +35,9 @@ export class RoomComponent implements OnInit, OnDestroy{
   usersObs!: Subscription;
 
 
-  roomData: any | undefined;
-  joinedusers: any[] | undefined;
+  roomData!: any;
+  joinedusers!: any[];
+  streamingusers: any[] = [];
   captureStream!: any;
   currentUser!: any;
 
@@ -70,7 +72,6 @@ export class RoomComponent implements OnInit, OnDestroy{
     this.roomObs.unsubscribe()
     this.usersObs.unsubscribe()
   }
-
 
   trackBy(index: number, item: any): string {
     return item.uid;
