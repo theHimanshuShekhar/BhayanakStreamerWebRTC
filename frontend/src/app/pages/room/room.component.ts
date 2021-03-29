@@ -19,6 +19,7 @@ export class RoomComponent implements OnInit, OnDestroy{
 
   iceServers: RTCConfiguration = {
     "iceServers":[
+      {"urls":["turn:65.1.37.89:3478"],"username":"<USERNAME>","credential":"<PASSWORD>"},
       {"urls":["turn:192.158.29.39:3478?transport=tcp"],"username":"28224511:1379330808","credential":"JZEOEt2V3Qb0y27GRntt2u2PAYA="},
       {"urls":["turn:192.158.29.39:3478?transport=udp"],"username":"28224511:1379330808","credential":"JZEOEt2V3Qb0y27GRntt2u2PAYA="},
       {"urls":["turn:numb.viagenie.ca"],"username":"gotismurf@gmail.com","credential":"golusing95"},
@@ -69,21 +70,12 @@ export class RoomComponent implements OnInit, OnDestroy{
   populateUsers(newusers: any[]) {
     this.joinedusers = newusers;
 
-    // console.log('joined:')
-    // console.log(this.joinedusers)
-    // console.log('new:')
-    // console.log(newusers)
+    // Add newusers not present in joinedusers
 
-    // if(this.joinedusers && this.joinedusers.length <= 0) { this.joinedusers = newusers; return;}
+    // Remove joinedusers not present in newusers
 
-    // // Add newusers not present in joinedusers
+    // Update streaming status of joinedusers
 
-    // // Remove joinedusers not present in newusers
-
-    // // Update streaming status of joinedusers
-
-    // console.log('after:')
-    // console.log(this.joinedusers)
   }
 
   async getCurrentUser() {
