@@ -2,9 +2,15 @@
     <app-header></app-header>
     <div class="relative flex-grow overflow-y-auto">
         <div *ngIf="joinedusers" class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3">
+            <div *ngFor="let user of streamingusers">
+                <!-- Streamer -->
+                <app-viewer *ngIf="currentUser" [isStreaming]="user.streaming" [uid]="user.uid" [currentUID]="currentUser.uid" [roomID]="roomData.roomid"></app-viewer>
+            </div>
             <div *ngFor="let user of joinedusers">
-                <app-viewer *ngIf="currentUser && currentUser.uid === user.uid"  [uid]="user.uid" [isMuted]="true" [captureStream]="captureStream"></app-viewer>
-                <app-viewer *ngIf="currentUser && currentUser.uid !== user.uid" [isStreaming]="user.streaming" [uid]="user.uid" [currentUID]="currentUser.uid" [roomID]="roomData.roomid"></app-viewer>
+              <!-- Self viewer -->
+              <app-viewer *ngIf="currentUser && currentUser.uid === user.uid"  [uid]="user.uid" [isMuted]="true" [captureStream]="captureStream"></app-viewer>
+                <!-- Viewer non-streamer -->
+                <app-viewer *ngIf="currentUser && currentUser.uid !== user.uid" [isStreaming]="user.streaming" [uid]="user.uid" [isMuted]="true" [captureStream]="captureStream"></app-viewer>
              </div>
         </div>
     </div>

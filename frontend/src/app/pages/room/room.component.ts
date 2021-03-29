@@ -35,8 +35,9 @@ export class RoomComponent implements OnInit, OnDestroy{
   usersObs!: Subscription;
 
 
-  roomData: any | undefined;
-  joinedusers: any[] | undefined;
+  roomData!: any;
+  joinedusers!: any[];
+  streamingusers: any[] = [];
   captureStream!: any;
   currentUser!: any;
 
@@ -68,14 +69,27 @@ export class RoomComponent implements OnInit, OnDestroy{
   }
 
   populateUsers(newusers: any[]) {
-    this.joinedusers = newusers;
+    let viewers: any[] = []
 
-    // Add newusers not present in joinedusers
+    const streamers = newusers.map(user=> {
+      if(user.streaming === true) {
+        this.streamingusers.push(user);
+        return user;
+      }
+      else viewers.push(user);
+    })
 
-    // Remove joinedusers not present in newusers
+    // Add viewers to joinedusers
+    this.joinedusers = viewers;
 
-    // Update streaming status of joinedusers
 
+    // Remove old streamers
+    this.streamingusers.map((streamer,index) => {
+      if(!streamers.includes(streamer)) this.streamingusers.splice(index,1)
+    });
+
+    console.log(this.joinedusers)
+    console.log(this.streamingusers)
   }
 
   async getCurrentUser() {
