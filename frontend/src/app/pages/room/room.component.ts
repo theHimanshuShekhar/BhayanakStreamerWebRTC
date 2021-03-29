@@ -58,9 +58,14 @@ export class RoomComponent implements OnInit, OnDestroy{
       this.presence.joinedRoom(roomid);
       this.joinedusers = [];
       this.roomObs = this.roomService.getRoomByID(roomid).subscribe((room: any) => this.roomData = room);
-      this.usersObs = this.roomService.getRoomUsers(roomid).subscribe((users: any[]) => this.populateUsers(users))
+      this.usersObs = this.roomService.getRoomUsers(roomid).subscribe((users: any[]) => this.joinedusers = users.sort(this.sortStreamers))
       this.getCurrentUser();
     }
+  }
+
+  sortStreamers(a:any, b:any) {
+    if(a.streaming) return -1;
+    return 1;
   }
 
   ngOnDestroy() {
@@ -68,28 +73,8 @@ export class RoomComponent implements OnInit, OnDestroy{
     this.usersObs.unsubscribe()
   }
 
-  populateUsers(newusers: any[]) {
-    let viewers: any[] = []
-
-    const streamers = newusers.map(user=> {
-      if(user.streaming === true) {
-        this.streamingusers.push(user);
-        return user;
-      }
-      else viewers.push(user);
-    })
-
-    // Add viewers to joinedusers
-    this.joinedusers = viewers;
-
-
-    // Remove old streamers
-    this.streamingusers.map((streamer,index) => {
-      if(!streamers.includes(streamer)) this.streamingusers.splice(index,1)
-    });
-
-    console.log(this.joinedusers)
-    console.log(this.streamingusers)
+  trackBy(index: number, item: any): string {
+    return item.uid;
   }
 
   async getCurrentUser() {
