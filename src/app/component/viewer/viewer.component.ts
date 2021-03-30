@@ -69,10 +69,13 @@ export class ViewerComponent implements OnInit, AfterViewChecked {
         event.streams[0].getTracks().forEach(track => {
             this.captureStream.addTrack(track);
         });
-
-        // // Add mediastream as src of video element
-        // if(this.captureStream) this.localVideo.nativeElement.srcObject = this.captureStream
       };
+
+      pc.onicegatheringstatechange = e => console.log(e);
+      pc.onsignalingstatechange = e => console.log(e);
+      pc.oniceconnectionstatechange = e => console.log(e);
+      pc.onconnectionstatechange = e => console.log(e);
+      pc.onnegotiationneeded = e => console.log(e);
 
       pc.onicecandidate = e => {
         console.log("ICE candidate found")
