@@ -1,4 +1,4 @@
-import { AfterViewChecked, Component, Input, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, Component, HostListener, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { AngularFirestore } from '@angular/fire/firestore';
 import { AuthService } from 'src/app/services/auth/auth.service';
 
@@ -7,7 +7,7 @@ import { AuthService } from 'src/app/services/auth/auth.service';
   templateUrl: './viewer.component.html',
   styleUrls: ['./viewer.component.scss']
 })
-export class ViewerComponent implements OnInit, AfterViewChecked {
+export class ViewerComponent implements OnInit, AfterViewChecked, OnDestroy {
   @ViewChild('localVideo', {static: false}) public localVideo:any;
 
   @Input() uid!: string ;
@@ -33,6 +33,9 @@ export class ViewerComponent implements OnInit, AfterViewChecked {
 
   user: any;
 
+
+  connections: RTCPeerConnection[] = [];
+
   constructor(private auth: AuthService, private afs: AngularFirestore) {
   }
 
@@ -42,6 +45,26 @@ export class ViewerComponent implements OnInit, AfterViewChecked {
         this.user = user;
       })
     }
+  }
+
+  @HostListener('window:beforeunload')
+  async ngOnDestroy() {
+    this.closeConnections()
+  }
+
+  async closeConnections() {
+    this.connections.map(conn => conn.close())
+    this.clearConnectionOffers()
+  }
+
+  clearConnectionOffers() {
+    this.afs.collection("rooms/" + this.roomID + "/offers", ref=>ref.where("from","==",this.currentUID))
+    .snapshotChanges()
+    .subscribe(docs => docs.forEach(snapshots => snapshots.payload.doc.ref.delete()))
+
+    this.afs.collection("rooms/" + this.roomID + "/offers", ref=>ref.where("to","==",this.currentUID))
+    .snapshotChanges()
+    .subscribe(docs => docs.forEach(snapshots => snapshots.payload.doc.ref.delete()))
   }
 
   ngAfterViewChecked() {
@@ -104,6 +127,9 @@ export class ViewerComponent implements OnInit, AfterViewChecked {
           // Listen for ice candidates from streamer and add to peer connection
           offerDoc.collection('offerCandidates').valueChanges()
           .subscribe(candidates => candidates.forEach(candidate => pc.addIceCandidate(new RTCIceCandidate(candidate))));
+
+          // Add connection to array
+          this.connections.push(pc);
         }
       })
 

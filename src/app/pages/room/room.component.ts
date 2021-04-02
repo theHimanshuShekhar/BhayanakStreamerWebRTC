@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, HostListener, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from 'src/app/services/auth/auth.service';
 import { PresenceService } from 'src/app/services/room/presence.service';
@@ -68,9 +68,16 @@ export class RoomComponent implements OnInit, OnDestroy{
     return 1;
   }
 
-  ngOnDestroy() {
+  @HostListener('window:beforeunload')
+  async ngOnDestroy() {
     this.roomObs.unsubscribe()
     this.usersObs.unsubscribe()
+    this.closeConnections()
+  }
+
+  async closeConnections() {
+    this.connections.map(conn => conn.close())
+    this.clearConnectionOffers()
   }
 
   trackBy(index: number, item: any): string {
@@ -131,6 +138,7 @@ export class RoomComponent implements OnInit, OnDestroy{
     this.captureStream = null;
 
     this.presence.stoppedStreaming(this.currentUser.uid)
+    this.clearConnectionOffers()
   }
 
   listenForRequests() {
@@ -180,6 +188,9 @@ export class RoomComponent implements OnInit, OnDestroy{
         // Listen for ice candidates froms viewer and add to peer connection
         offerDoc.collection('answerCandidates').valueChanges()
           .subscribe(candidates => candidates.forEach(candidate => pc.addIceCandidate(new RTCIceCandidate(candidate))));
+
+        // Add connection to array
+        this.connections.push(pc);
       })
     );
   }
