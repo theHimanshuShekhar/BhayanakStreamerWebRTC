@@ -52,19 +52,35 @@ export class ViewerComponent implements OnInit, AfterViewChecked, OnDestroy {
     this.closeConnections()
   }
 
-  async closeConnections() {
+  closeConnections() {
     this.connections.map(conn => conn.close())
     this.clearConnectionOffers()
   }
 
   clearConnectionOffers() {
-    this.afs.collection("rooms/" + this.roomID + "/offers", ref=>ref.where("from","==",this.currentUID))
+    this.afs.collection("rooms/" + this.roomID + "/offers", ref=>ref.where("from","==",this.user.uid))
     .snapshotChanges()
-    .subscribe(docs => docs.forEach(snapshots => snapshots.payload.doc.ref.delete()))
+    .subscribe(docs => docs.forEach(snapshots => {
+      snapshots.payload.doc.ref.delete()
 
-    this.afs.collection("rooms/" + this.roomID + "/offers", ref=>ref.where("to","==",this.currentUID))
+      this.afs.collection(snapshots.payload.doc.ref.path + '/' + "offerCandidates").snapshotChanges()
+      .subscribe((snapshots:any) => snapshots.forEach((offerDoc:any) => offerDoc.payload.doc.ref.delete()))
+
+      this.afs.collection(snapshots.payload.doc.ref.path + '/' + "answerCandidates").snapshotChanges()
+      .subscribe((snapshots:any) => snapshots.forEach((offerDoc:any) => offerDoc.payload.doc.ref.delete()))
+    }))
+
+    this.afs.collection("rooms/" + this.roomID + "/offers", ref=>ref.where("to","==",this.user.uid))
     .snapshotChanges()
-    .subscribe(docs => docs.forEach(snapshots => snapshots.payload.doc.ref.delete()))
+    .subscribe(docs => docs.forEach(snapshots => {
+      snapshots.payload.doc.ref.delete();
+      this.afs.collection(snapshots.payload.doc.ref.path + '/' + "offerCandidates").snapshotChanges()
+      .subscribe((snapshots:any) => snapshots.forEach((offerDoc:any) => offerDoc.payload.doc.ref.delete()))
+
+
+      this.afs.collection(snapshots.payload.doc.ref.path + '/' + "answerCandidates").snapshotChanges()
+      .subscribe((snapshots:any) => snapshots.forEach((offerDoc:any) => offerDoc.payload.doc.ref.delete()))
+    }))
   }
 
   ngAfterViewChecked() {
@@ -115,6 +131,8 @@ export class ViewerComponent implements OnInit, AfterViewChecked, OnDestroy {
           await pc.setLocalDescription(answerDescription)
 
           const answerpayload = {
+            from: this.currentUID,
+            to: this.uid,
             sdp: pc.localDescription?.sdp,
             type: pc.localDescription?.type,
           }

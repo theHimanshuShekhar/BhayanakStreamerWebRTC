@@ -100,11 +100,27 @@ export class RoomComponent implements OnInit, OnDestroy{
   clearConnectionOffers() {
     this.afs.collection("rooms/" + this.roomData.roomid + "/offers", ref=>ref.where("from","==",this.currentUser.uid))
     .snapshotChanges()
-    .subscribe(docs => docs.forEach(snapshots => snapshots.payload.doc.ref.delete()))
+    .subscribe(docs => docs.forEach(snapshots => {
+      snapshots.payload.doc.ref.delete()
+
+      this.afs.collection(snapshots.payload.doc.ref.path + '/' + "offerCandidates").snapshotChanges()
+      .subscribe((snapshots:any) => snapshots.forEach((offerDoc:any) => offerDoc.payload.doc.ref.delete()))
+
+      this.afs.collection(snapshots.payload.doc.ref.path + '/' + "answerCandidates").snapshotChanges()
+      .subscribe((snapshots:any) => snapshots.forEach((offerDoc:any) => offerDoc.payload.doc.ref.delete()))
+    }))
 
     this.afs.collection("rooms/" + this.roomData.roomid + "/offers", ref=>ref.where("to","==",this.currentUser.uid))
     .snapshotChanges()
-    .subscribe(docs => docs.forEach(snapshots => snapshots.payload.doc.ref.delete()))
+    .subscribe(docs => docs.forEach(snapshots => {
+      snapshots.payload.doc.ref.delete()
+
+      this.afs.collection(snapshots.payload.doc.ref.path + '/' + "offerCandidates").snapshotChanges()
+      .subscribe((snapshots:any) => snapshots.forEach((offerDoc:any) => offerDoc.payload.doc.ref.delete()))
+
+      this.afs.collection(snapshots.payload.doc.ref.path + '/' + "answerCandidates").snapshotChanges()
+      .subscribe((snapshots:any) => snapshots.forEach((offerDoc:any) => offerDoc.payload.doc.ref.delete()))
+    }))
   }
 
   buttonClick() {
